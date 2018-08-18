@@ -6,7 +6,7 @@ LD = mpicc
 CFLAGS = -O3 -host -I/usr/sw-mpp/mpi2/include/ -lm -msimd
 LDFLAGS =
 
-OBJ = LbmCavity3D.o CollideSIMD.o Parallel.o StreamUnroll.o
+OBJ = LbmCavity3D.o Parallel.o TComputing.o
 OBJ_N = LbmCavity3D.o Collide.o Parallel.o Stream.o
 
 LIB = lib/liblbm.a

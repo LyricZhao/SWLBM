@@ -243,17 +243,12 @@ int main(int argc, char *argv[])
 		      temp_ru);
 
   if(myrank == 0) {
-		MLOG("Step >> [%d/%d] Stream Step Started. \n", s + 1, STEPS);
+		MLOG("Step >> [%d/%d] Computing Step Started. \n", s + 1, STEPS);
 	}
-	stream(nodes, walls, flags, Xst, Xed, Yst, Yed, Z, current, other);
-
-  if(myrank == 0) {
-    MLOG("Step >> [%d/%d] Collide Step Started. \n", s + 1, STEPS);
-  }
-	collide(nodes, flags, Xst, Xed, Yst, Yed, Z, current);
+  computeOneStep(nodes, walls, flags, Xst, Xed, Yst, Yed, Z, current);
 
 	other = current;
-	current = (current+1)%2;
+	current ^= 1;
 
 	if(myrank == 0) {
 		MLOG("Step >> [%d/%d] Calculation Completed. \n\n", s + 1, STEPS);
