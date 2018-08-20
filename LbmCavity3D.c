@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
 	 * Main Calculation section
 	 * ---------------------------------------------------*/
 	TIME_ST();
+  athread_init();
 
 	for (s = 0; s < STEPS; s++) {
 
@@ -256,6 +257,7 @@ int main(int argc, char *argv[])
 
 	}
 
+  athread_halt();
 	TIME_ED();
 	/*-----------------------------*
  	 * OUTPUT

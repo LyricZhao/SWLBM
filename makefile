@@ -3,20 +3,32 @@ USER = $(shell whoami)
 CC = sw5cc
 LD = mpicc
 
-CFLAGS = -O3 -host -I/usr/sw-mpp/mpi2/include/ -lm -msimd
+CFLAGS = -O3 -I/usr/sw-mpp/mpi2/include/ -lm -msimd
+CFLAGS_HOST = -host $(CFLAGS)
+CFLAGS_SLAVE = -slave $(CFLAGS)
+
 LDFLAGS =
 
-OBJ = LbmCavity3D.o Parallel.o TComputing.o
+OBJ = LbmCavity3D.o Parallel.o TComputing.o TComputingSlave.o
 OBJ_N = LbmCavity3D.o Collide.o Parallel.o Stream.o
 
 LIB = lib/liblbm.a
 
-$(TARGET): $(OBJ) makefile
+$(TARGET): $(OBJ)
 	$(LD) $(OBJ) $(LIB) $(LDFLAGS) -o $(TARGET)
 	rm $(OBJ)
 
-%.o: %.c makefile
-	$(CC) $(CFLAGS) -c $<
+LbmCavity3D.o: LbmCavity3D.c
+	$(CC) $(CFLAGS_HOST) -c LbmCavity3D.c
+
+Parallel.o: LbmCavity3D.c
+	$(CC) $(CFLAGS_HOST) -c Parallel.c
+
+TComputing.o: LbmCavity3D.c
+	$(CC) $(CFLAGS_HOST) -c TComputing.c
+
+TComputingSlave.o: LbmCavity3D.c
+	$(CC) $(CFLAGS_SLAVE) -c TComputingSlave.c
 
 original: $(OBJ_N) makefile
 	$(LD) $(OBJ_N) $(LIB) $(LDFLAGS) -o $(TARGET)
