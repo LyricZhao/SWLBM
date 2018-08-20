@@ -1,43 +1,31 @@
 TARGET = LbmCavity3D
 USER = $(shell whoami)
 CC = sw5cc
-LD = mpicc
+LD = mpicc 
 
-CFLAGS = -O3 -host -I/usr/sw-mpp/mpi2/include/ -lm -msimd
-LDFLAGS =
+CFLAGS =  -O3 -host -I/usr/sw-mpp/mpi2/include/ -lm 
+CFLAGS_SLAVE =  -O3 -slave -I/usr/sw-mpp/mpi2/include/ -lm
 
-OBJ = LbmCavity3D.o Parallel.o TComputing.o
-OBJ_N = LbmCavity3D.o Collide.o Parallel.o Stream.o
+OBJ = LbmCavity3D.o Parallel.o Work.o WorkSlave.o
 
 LIB = lib/liblbm.a
 
-$(TARGET): $(OBJ) makefile
-	$(LD) $(OBJ) $(LIB) $(LDFLAGS) -o $(TARGET)
-	rm $(OBJ)
-
-%.o: %.c makefile
+$(TARGET): $(OBJ)
+	$(LD) -hybrid -msimd -O3 $(OBJ) $(LIB) -o $(TARGET) 
+	
+Parallel.o:Parallel.c
 	$(CC) $(CFLAGS) -c $<
-
-original: $(OBJ_N) makefile
-	$(LD) $(OBJ_N) $(LIB) $(LDFLAGS) -o $(TARGET)
-	rm $(OBJ_N)
-
-test: TestCode
-	$(CC) -O3 -msimd -o TestCode TestCode.c
-
-run_test:
-	make test
-	bsub -I -b -q q_sw_cpc_1 -cgsp 64 -n 16 -np 4  -share_size 6500 -host_stack 500 -J Lyric_TestCode ./TestCode $(USER)
-
-run_original:
-	make original
-	bsub -I -b -q q_sw_cpc_1 -cgsp 64 -n 16 -np 4  -share_size 6500 -host_stack 500 -J Lyric_OriginalCode ./LbmCavity3D $(USER)
-
+LbmCavity3D.o:LbmCavity3D.c
+	$(CC) $(CFLAGS) -c $<
+Work.o:Work.c
+	$(CC) $(CFLAGS) -c $<
+WorkSlave.o:WorkSlave.c
+	$(CC) -msimd $(CFLAGS_SLAVE) -c $<
 run:
-	make $(TARGET)
-	bsub -I -b -q q_sw_cpc_1 -cgsp 64 -n 16 -np 4  -share_size 6500 -host_stack 500 -J Lyric_SWLBM_Opt ./LbmCavity3D $(USER)
+	bsub -I -b -q q_sw_cpc_1 -cgsp 64 -n 16 -np 4  -share_size 6500 -host_stack 500 -J test ./LbmCavity3D $(USER)
 
 #-------------------------------------*
 .PHONY : clean clear
 clean:
-	-rm -rf $(TARGET) $(OBJ)
+	-rm -rf $(TARGET) $(OBJ) 
+	

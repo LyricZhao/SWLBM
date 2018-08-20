@@ -3,13 +3,13 @@
 #include <math.h>
 #include <mpi.h>
 #include "Argument.h"
-
-int main(int argc, char *argv[])
-{
-    int ***flags;
+#include "athread.h"
+int main(int argc, char *argv[])                                       
+{                                                                 
+    int ***flags;                                                      
     int i, j, k, s, l;
     int myrank, my2drank, size;
-    int current = 0, other = 1;
+    int current = 0, other = 1; 
     int periods[NUM_DIMS] = {0, 0};
     int dims[NUM_DIMS] = {0, 0};
     int coords[2];
@@ -51,17 +51,17 @@ int main(int argc, char *argv[])
     int **rankinfo;
     Real **image;
     Real **local_image;
-
+		
 	/*------------------------
          * Parameter Set
          * ----------------------*/
 
     	setParameter();
-
+	
 	/*---------------------------*
 	 * MPI Init
 	 * --------------------------*/
-
+    
 
     	MPI_Init(&argc, &argv);
 
@@ -70,11 +70,11 @@ int main(int argc, char *argv[])
     	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 
 	MLOG("CPC -- LBM-simulation Benchmark!\n\n");
-
+	 
 	/*----------------------------*
          * MPI Mesh Section
          * ---------------------------*/
-
+    
 	MPI_Dims_create(size, NUM_DIMS, dims);
 
     	MPI_Cart_create(MPI_COMM_WORLD, NUM_DIMS, dims, periods, 0, &mycomm);
@@ -84,14 +84,14 @@ int main(int argc, char *argv[])
     	MPI_Cart_coords(mycomm, my2drank, 2, coords);
 
 	SetMPI(mycomm, dims, coords);
-
+	
 
 
     	X_section = X / dims[0];
     	X_res     = X % dims[0];
     	Y_section = Y / dims[1];
     	Y_res     = Y % dims[1];
-
+    
 	Xst = (coords[0] < X_res) ? (coords[0] * (X_section + 1))
 								  : (coords[0] *  X_section + X_res);
 	Xed = (coords[0] < X_res) ? (Xst       + (X_section + 1))
@@ -100,24 +100,24 @@ int main(int argc, char *argv[])
 								  : (coords[1] *  Y_section + Y_res);
 	Yed = (coords[1] < Y_res) ? (Yst       + (Y_section + 1))
 								  : (Yst       +  Y_section);
-
+	
     	x_sec = Xed - Xst;
     	y_sec = Yed - Yst;
-
+	
 
 	/*-----------------------------*
-         *-----------------------------*
+         *-----------------------------* 
          * ----------------------------*/
-
+	
 	MLOG("Size                 :  %d x %d x %d\n", X, Y, Z);
         MLOG("Steps                :  %d\n", STEPS);
         MLOG("Number of Process    :  %d\n\n", size);
-
+	
         /*-----------------------------*
          * Space Allocate
          * ----------------------------*/
 
-
+	
 
 	flags = array3DI(x_sec + 2, y_sec + 2, Z);
 	nodes = array5DF(2, x_sec + 2, y_sec + 2, Z, 19);
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
     	temp_down_send  = array3DF(x_sec, Z, 19);
     	temp_up_send    = array3DF(x_sec, Z, 19);
     	memset(&walls[0][0][0][0], 0, x_sec * y_sec * Z * 19 * sizeof(int));
-
+	
 	/*----------------------------------------*
 	 * local rank info
 	 * ---------------------------------------*/
@@ -161,60 +161,78 @@ int main(int argc, char *argv[])
     	init_Pointer(flags, nodes, walls, Xst, Xed, Yst, Yed, Z, x_sec, y_sec, 1, LDC_VELOCITY);
 
 	MLOG("Step >> Main Steps start!\n\n");
-
-
 	/*----------------------------------------------------*
 	 * Main Calculation section
 	 * ---------------------------------------------------*/
 	TIME_ST();
-
+	athread_init();
+	char ****_wall=array4DI(125*25*50,10,10,5);
+	int t;
+	for(i=0;i<125;i++)
+	{
+		for(j=0;j<25;j++)
+		{
+			for(k=0;k<50;k++)
+			{
+				for(s=0;s<10;s++)
+				{
+					for(l=0;l<10;l++)
+					{
+						for(t=0;t<19;t++)
+							_wall[k+50*j+1250*i][s][l][t] = walls[j*10+s][i][k*10+l][t];
+						_wall[k+50*j+1250*i][s][l][19]=flags[1+j*10+s][1+i][k*10+l];
+					}
+				}
+			}
+		}
+	}
 	for (s = 0; s < STEPS; s++) {
 
         bounce_send_init(X,
 			 Y,
 			 Z,
-			 Xst,
-		         Xed,
-			 Yst,
-			 Yed,
-			 x_sec,
-			 y_sec,
-			 current,
-			 other,
-			 nodes,
-                         temp_left_send,
-			 temp_right_send,
-			 temp_up_send,
-			 temp_down_send,
-                         temp_ld_send,
-			 temp_lu_send,
-			 temp_rd_send,
+			 Xst, 
+		         Xed, 
+			 Yst, 
+			 Yed, 
+			 x_sec, 
+			 y_sec, 
+			 current, 
+			 other, 
+			 nodes, 
+                         temp_left_send, 
+			 temp_right_send, 
+			 temp_up_send, 
+			 temp_down_send, 
+                         temp_ld_send, 
+			 temp_lu_send, 
+			 temp_rd_send, 
 			 temp_ru_send);
 
-        bounce_communicate(mycomm,
-		           dims,
-			   coords,
-			   x_sec,
-			   y_sec,
+        bounce_communicate(mycomm, 
+		           dims, 
+			   coords, 
+			   x_sec, 
+			   y_sec, 
 			   Z,
 			   &count,
 			   sta,
 			   req,
-			   temp_left_send,
-			   temp_right_send,
-			   temp_up_send,
-			   temp_down_send,
-			   temp_left,
-			   temp_right,
-			   temp_up,
+			   temp_left_send, 
+			   temp_right_send, 
+			   temp_up_send, 
+			   temp_down_send, 
+			   temp_left, 
+			   temp_right, 
+			   temp_up, 
 			   temp_down,
-			   temp_lu_send,
-			   temp_ld_send,
-			   temp_ru_send,
-			   temp_rd_send,
-			   temp_lu,
-			   temp_ld,
-			   temp_ru,
+			   temp_lu_send, 
+			   temp_ld_send, 
+			   temp_ru_send, 
+			   temp_rd_send, 
+			   temp_lu, 
+			   temp_ld, 
+			   temp_ru, 
 			   temp_rd);
 
 	for(i = 0; i < count; i++) {
@@ -224,41 +242,39 @@ int main(int argc, char *argv[])
         bounce_update(X,
 		      Y,
 		      Z,
-		      Xst,
-		      Xed,
-		      Yst,
-		      Yed,
+		      Xst, 
+		      Xed, 
+		      Yst, 
+		      Yed, 
 		      myrank,
-		      x_sec,
+		      x_sec, 
 		      y_sec,
 		      other,
 		      nodes,
-                      temp_left,
-		      temp_right,
-		      temp_up,
+                      temp_left, 
+		      temp_right, 
+		      temp_up, 
 		      temp_down,
-                      temp_ld,
-		      temp_lu,
-		      temp_rd,
+                      temp_ld, 
+		      temp_lu, 
+		      temp_rd, 
 		      temp_ru);
-
-  if(myrank == 0) {
-		MLOG("Step >> [%d/%d] Computing Step Started. \n", s + 1, STEPS);
-	}
-  computeOneStep(nodes, walls, flags, Xst, Xed, Yst, Yed, Z, current);
-
+	
+	
+	work(nodes, _wall, current); 
 	other = current;
-	current ^= 1;
+	current = (current+1)%2;
 
-	if(myrank == 0) {
-		MLOG("Step >> [%d/%d] Calculation Completed. \n\n", s + 1, STEPS);
+	if(myrank == 0 && STEPS >= 10 && (s + 1)%(STEPS/10) == 0.0) {
+		n += 1;
+		MLOG("Step >> [%d/%d] Calculation Completed %d%% \n", s + 1, STEPS, n * 10);
 	}
-
+	
 	}
-
+	athread_halt();
 	TIME_ED();
 	/*-----------------------------*
- 	 * OUTPUT
+ 	 * OUTPUT 
  	 *-----------------------------*/
 
 	MLOG("Step >> Main Steps Done!\n\n");
@@ -291,7 +307,7 @@ int main(int argc, char *argv[])
 
 	MLOG("LBM-simulation Done!\n");
 
-  MPI_Finalize();
+    	MPI_Finalize();
 
 	return 0;
 }
