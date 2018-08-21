@@ -168,6 +168,15 @@ int main(int argc, char *argv[])
 	 * ---------------------------------------------------*/
 	TIME_ST();
   athread_init();
+  char ****wallsChar = (char ****) array4DI(x_sec + 2, y_sec + 2, Z, 5);
+  for(i = 1; i < Xed - Xst + 1; ++ i) {
+    for(j = 1; j < Yed - Yst + 1; ++ j) {
+      for(k = 0; k < Z; ++ k) {
+        for(l = 0; l < 19; ++ l) wallsChar[i][j][k][l] = walls[i - 1][j - 1][k][l];
+        wallsChar[i][j][k][19] = flags[i][j][k];
+      }
+    }
+  }
 
 	for (s = 0; s < STEPS; s++) {
 
@@ -246,7 +255,7 @@ int main(int argc, char *argv[])
   if(myrank == 0) {
 		MLOG("Step >> [%d/%d] Computing Step Started. \n", s + 1, STEPS);
 	}
-  computeOneStep(nodes, walls, flags, Xst, Xed, Yst, Yed, Z, current);
+  computeOneStep(nodes, wallsChar, flags, Xst, Xed, Yst, Yed, Z, current);
 
 	other = current;
 	current ^= 1;
@@ -258,6 +267,7 @@ int main(int argc, char *argv[])
 	}
 
   athread_halt();
+  arrayFree4DI((int ****)wallsChar);
 	TIME_ED();
 	/*-----------------------------*
  	 * OUTPUT

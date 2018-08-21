@@ -5,41 +5,41 @@
 # include <stdio.h>
 # include <assert.h>
 
-# include "Argument.h"
 # include "ArgumentMT.h"
 
 /* Parameters */
 __thread_local Real *****nodes;
-__thread_local int ****walls, ***flags, Xst, Xed, Yst, Yed, nz, current, other;
+__thread_local char ****walls;
+__thread_local int Xst, Xed, Yst, Yed, nz, current, other;
 
 /* Thread */
 __thread_local volatile long wait = 0;
 __thread_local int threadID, threadST, threadED, statusI[3];
-__thread_local Real nodesCurrentLocal[MAXJ - 2][MAXK][MAXL] __attribute__((aligned(32)));
+__thread_local Real nodesCurrentLocal[MAXJ - 2][MAXK][MAXL] __attribute__((aligned(128)));
 
 /* Main Vars */
-__thread_local Real nodesOtherLocal[MAXI][MAXJ][MAXK + 2][MAXL] __attribute__((aligned(32)));
-__thread_local int wallsLocal[MAXJ - 2][MAXK][MAXL] __attribute__((aligned(32)));
-__thread_local int flagsLocal[MAXJ - 2][MAXK] __attribute__((aligned(32)));
+__thread_local Real nodesOtherLocal[MAXI][MAXJ][MAXK + 2][MAXL] __attribute__((aligned(128)));
+__thread_local char wallsLocal[MAXJ - 2][MAXK][MAXL + 1] __attribute__((aligned(128)));
 
 /* Collide */
-__thread_local int *flagsM;
-__thread_local Real Qo, S, omegaNew, rho, u_x, u_y, u_z, uxyzConst, nf6, nf10, nf14, *feq, *npc0;
+__thread_local Real Qo, S, omegaNew, rho, u_x, u_y, u_z, uxyzConst, nf6, nf10, nf14, *npc0;
 __thread_local Real nfSub[20] __attribute__((aligned(32)));
+__thread_local Real feq[20] __attribute__((aligned(32)));
 
 /* Vector */
 __thread_local floatv4 tmpV, fiV, rxyzV;
 __thread_local floatv4 uxyzConstV, u_xV, u_yV, u_zV, omegaNewV, rhoConstV;
 __thread_local floatv4 const1V = 1.0, const3V = 3.0, const4p5V = 4.5;
-__thread_local floatv4 *e_xV = (floatv4*) e_xM, *e_yV = (floatv4*) e_yM, *e_zV = (floatv4*) e_zM, *wV = (floatv4*) wM, *nfSubV;
 __thread_local floatv4 eCoefV[20] __attribute__((aligned(32)));
-__thread_local floatv4 feqV[5] __attribute__((aligned(32)));
+
+/* Extern */
+extern Real nu, omega, CSmago;
 
 inline void setParas(long *para) {
-  nodes = (Real *****) para[0]; walls = (int ****) para[1]; flags = (int ***) para[2];
+  nodes = (Real *****) para[0]; walls = (char ****) para[1];
   Xst = para[3]; Xed = para[4]; Yst = para[5];
   Yed = para[6]; nz = para[7]; current = para[8];
-  other = current ^ 1, nfSubV = (floatv4 *) nfSub, feq = (Real *) feqV;
+  other = current ^ 1;
 }
 
 inline void threadInit() {
@@ -49,7 +49,7 @@ inline void threadInit() {
   threadED = BLOCK_HIH(threadID, MT_NUMS, length) + 2;
   /* NOTE: [threadST, threadED) */
   assert((threadED - threadST) <= (MAXJ - 2));
-  statusI[0] = statusI[1] = statusI[2] = 0;
+  statusI[0] = statusI[1] = statusI[2] = -1;
 }
 
 inline Real sqr(Real s) {
@@ -126,27 +126,25 @@ void computeOneStepParallel(long *para) {
             DMA_Get(&nodes[other][t][j][kST][0], &nodesOtherLocal[t % 3][j & 3][1][0], (MAXK + 1) * MAXL * sizeof(Real));
           }
           else if(kST + MAXK == nz) {
-            DMA_Get(&nodes[other][t][j][kST][0], &nodesOtherLocal[t % 3][j & 3][0][0], (MAXK + 1) * MAXL * sizeof(Real));
+            DMA_Get(&nodes[other][t][j][kST - 1][0], &nodesOtherLocal[t % 3][j & 3][0][0], (MAXK + 1) * MAXL * sizeof(Real));
           }
           else {
-            DMA_Get(&nodes[other][t][j][kST][0], &nodesOtherLocal[t % 3][j & 3][0][0], (MAXK + 2) * MAXL * sizeof(Real));
+            DMA_Get(&nodes[other][t][j][kST - 1][0], &nodesOtherLocal[t % 3][j & 3][0][0], (MAXK + 2) * MAXL * sizeof(Real));
           }
         }
       }
       for(j = threadST; j < threadED; ++ j) {
         DMA_Get(&nodes[current][i][j][kST][0], &nodesCurrentLocal[j & 1][0][0], MAXK * MAXL * sizeof(Real));
-        DMA_Get(&walls[i - 1][j - 1][kST][0], &wallsLocal[j & 1][0][0], MAXK * MAXL * sizeof(int));
-        DMA_Get(&flags[i][j][kST], &flagsLocal[j & 1][0], MAXK * sizeof(int));
+        DMA_Get(&walls[i][j][kST][0], &wallsLocal[j & 1][0][0], MAXK * (MAXL + 1) * sizeof(char));
       }
 
       /* Compute */
       for(j = threadST; j < threadED; ++ j) {
-        flagsM = flagsLocal[j & 1];
         for(k = 0; k < MAXK; ++ k) {
           npc0 = nodesCurrentLocal[j & 1][k];
 
           /* Stream */
-          if(flagsM[k] == FLUID) {
+          if(wallsLocal[j & 1][k][19] == FLUID) {
             int is1 = (i - 1) % 3, in0 = i % 3, ia1 = (i + 1) % 3;
             int js1 = (j - 1) & 3, jn0 = j & 3, ja1 = (j + 1) & 3;
             npc0[ 0] = nodesOtherLocal[in0][js1][k + 1][ 0];
@@ -169,7 +167,7 @@ void computeOneStepParallel(long *para) {
             npc0[17] = nodesOtherLocal[ia1][jn0][k + 2][17];
             npc0[18] = nodesOtherLocal[in0][jn0][k + 1][18];
             collideIn();
-          } else if(flagsM[k] == BOUNCE) {
+          } else if(wallsLocal[j & 1][k][19] == BOUNCE) {
             for(l = 0; l < 19; ++ l) {
               inv = dfInvM[l];
               if(wallsLocal[j & 1][k][l]) {

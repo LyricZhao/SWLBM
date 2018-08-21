@@ -7,10 +7,18 @@
 # define MAXK 50
 # define MAXL 19
 
+# define FLUID 0
+# define NOSLIP 1
+# define VELOCITY 2
+# define BOUNCE 3
+# define PRESSURE 4
+
 # define BLOCK_LOW(id, p, n) ((id) * (n) / (p))
 # define BLOCK_HIH(id, p, n) (BLOCK_LOW((id) + 1, p, n) - 1)
 # define BLOCK_SIZE(id, p, n) (BLOCK_HIH(id, p, n) - BLOCK_LOW(id, p, n) + 1)
 # define BLOCK_OWNER(j, p, n) (((p) * ((j) + 1) - 1) / (n))
+
+typedef float Real;
 
 __thread_local const Real wM[20] __attribute__((aligned(32))) = {
 		(1./18.),(1./18.),(1./18.),(1./18.),(1./18.),(1./18.),
