@@ -20,17 +20,17 @@
 
 typedef float Real;
 
-__thread_local const Real wM[20] __attribute__((aligned(32))) = {
+__thread_local_fix const Real wM[20] __attribute__((aligned(32))) = {
 		(1./18.),(1./18.),(1./18.),(1./18.),(1./18.),(1./18.),
 		(1./36.),(1./36.),(1./36.),(1./36.),(1./36.),(1./36.),
 		(1./36.),(1./36.),(1./36.),(1./36.),(1./36.),(1./36.),(1./3.), (0.0)}; // Add an 0
 
-__thread_local const Real e_xM[20] __attribute__((aligned(32))) = {0, 0, 1,-1, 0, 0, 1,-1, 1,-1, 0, 0, 0, 0, 1, 1,-1,-1, 0, 0}; // Add an 0
-__thread_local const Real e_yM[20] __attribute__((aligned(32))) = {1,-1, 0, 0, 0, 0, 1, 1,-1,-1, 1, 1,-1,-1, 0, 0, 0, 0, 0, 0}; // Add an 0
-__thread_local const Real e_zM[20] __attribute__((aligned(32))) = {0, 0, 0, 0, 1,-1, 0, 0, 0, 0, 1,-1, 1,-1, 1,-1, 1,-1, 0, 0}; // Add an 0
+__thread_local_fix const Real e_xM[20] __attribute__((aligned(32))) = {0, 0, 1,-1, 0, 0, 1,-1, 1,-1, 0, 0, 0, 0, 1, 1,-1,-1, 0, 0}; // Add an 0
+__thread_local_fix const Real e_yM[20] __attribute__((aligned(32))) = {1,-1, 0, 0, 0, 0, 1, 1,-1,-1, 1, 1,-1,-1, 0, 0, 0, 0, 0, 0}; // Add an 0
+__thread_local_fix const Real e_zM[20] __attribute__((aligned(32))) = {0, 0, 0, 0, 1,-1, 0, 0, 0, 0, 1,-1, 1,-1, 1,-1, 1,-1, 0, 0}; // Add an 0
 
-__thread_local const int dfInvM[20] __attribute__((aligned(32))) = {1, 0, 3, 2, 5, 4, 9, 8, 7, 6, 13, 12, 11, 10, 17, 16, 15, 14, 18, 0};
+__thread_local_fix const int dfInvM[20] __attribute__((aligned(32))) = {1, 0, 3, 2, 5, 4, 9, 8, 7, 6, 13, 12, 11, 10, 17, 16, 15, 14, 18, 0};
 
-__thread_local const int e_xI[20] __attribute__((aligned(32))) = {0, 0, 1,-1, 0, 0, 1,-1, 1,-1, 0, 0, 0, 0, 1, 1,-1,-1, 0, 0}; // Add an 0
-__thread_local const int e_yI[20] __attribute__((aligned(32))) = {1,-1, 0, 0, 0, 0, 1, 1,-1,-1, 1, 1,-1,-1, 0, 0, 0, 0, 0, 0}; // Add an 0
-__thread_local const int e_zI[20] __attribute__((aligned(32))) = {0, 0, 0, 0, 1,-1, 0, 0, 0, 0, 1,-1, 1,-1, 1,-1, 1,-1, 0, 0}; // Add an 0
+__thread_local_fix const int e_xI[20] __attribute__((aligned(32))) = {0, 0, 1,-1, 0, 0, 1,-1, 1,-1, 0, 0, 0, 0, 1, 1,-1,-1, 0, 0}; // Add an 0
+__thread_local_fix const int e_yI[20] __attribute__((aligned(32))) = {1,-1, 0, 0, 0, 0, 1, 1,-1,-1, 1, 1,-1,-1, 0, 0, 0, 0, 0, 0}; // Add an 0
+__thread_local_fix const int e_zI[20] __attribute__((aligned(32))) = {0, 0, 0, 0, 1,-1, 0, 0, 0, 0, 1,-1, 1,-1, 1,-1, 1,-1, 0, 0}; // Add an 0

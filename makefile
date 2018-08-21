@@ -3,9 +3,9 @@ USER = $(shell whoami)
 CC = sw5cc
 LD = mpicc
 
-CFLAGS = -O3 -I/usr/sw-mpp/mpi2/include/ -lm -msimd
+CFLAGS = -O3 -I/usr/sw-mpp/mpi2/include/ -lm -msimd -OPT:alias=disjoint
 CFLAGS_HOST = -host $(CFLAGS)
-CFLAGS_SLAVE = -slave $(CFLAGS)
+CFLAGS_SLAVE = -slave -ver 5.421-sw-589 $(CFLAGS)
 
 LDFLAGS = -hybrid
 
@@ -39,7 +39,7 @@ test: TestCode
 
 run_test:
 	make test
-	bsub -I -b -q q_sw_cpc_1 -cgsp 64 -n 16 -np 4  -share_size 6500 -host_stack 500 -J Lyric_TestCode ./TestCode $(USER)
+	bsub -I -b -q q_sw_cpc_1 -cgsp 64 -n 16 -np 4 -share_size 6500 -host_stack 500 -J Lyric_TestCode ./TestCode $(USER)
 
 run_original:
 	make original

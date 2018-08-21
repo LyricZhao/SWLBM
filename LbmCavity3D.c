@@ -168,6 +168,7 @@ int main(int argc, char *argv[])
 	 * ---------------------------------------------------*/
 	TIME_ST();
   athread_init();
+  athread_enter64();
   char ****wallsChar = (char ****) array4DI(x_sec + 2, y_sec + 2, Z, 5);
   for(i = 1; i < Xed - Xst + 1; ++ i) {
     for(j = 1; j < Yed - Yst + 1; ++ j) {
@@ -266,6 +267,7 @@ int main(int argc, char *argv[])
 
 	}
 
+  athread_leave64();
   athread_halt();
   arrayFree4DI((int ****)wallsChar);
 	TIME_ED();

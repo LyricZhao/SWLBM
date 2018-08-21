@@ -8,30 +8,30 @@
 # include "ArgumentMT.h"
 
 /* Parameters */
-__thread_local Real *****nodes;
-__thread_local char ****walls;
-__thread_local int Xst, Xed, Yst, Yed, nz, current, other;
+__thread_local_fix Real *****nodes;
+__thread_local_fix char ****walls;
+__thread_local_fix int Xst, Xed, Yst, Yed, nz, current, other;
 
 /* Thread */
-__thread_local volatile long wait, target, putFlag, putTarget, waitWalls, targetWalls;
-__thread_local int threadID, threadST, threadED, statusI[3];
-__thread_local Real nodesCurrentLocal[MAXJ - 2][MAXK][MAXL] __attribute__((aligned(128)));
+__thread_local_fix volatile long wait, target, putFlag, putTarget, waitWalls, targetWalls;
+__thread_local_fix int threadID, threadST, threadED, statusI[3];
+__thread_local_fix Real nodesCurrentLocal[MAXJ - 2][MAXK][MAXL] __attribute__((aligned(128)));
 
 /* Main Vars */
-__thread_local Real nodesOtherLocal[MAXI][MAXJ][MAXK + 2][MAXL] __attribute__((aligned(128)));
-__thread_local char wallsLocal[MAXJ - 2][MAXK][MAXL + 1] __attribute__((aligned(128)));
+__thread_local_fix Real nodesOtherLocal[MAXI][MAXJ][MAXK + 2][MAXL] __attribute__((aligned(128)));
+__thread_local_fix char wallsLocal[MAXJ - 2][MAXK][MAXL + 1] __attribute__((aligned(128)));
 
 /* Collide */
-__thread_local Real _nu, _omega, _CSmago;
-__thread_local Real Qo, S, omegaNew, rho, u_x, u_y, u_z, uxyzConst, nf6, nf10, nf14, *npc0;
-__thread_local Real nfSub[20] __attribute__((aligned(32)));
-__thread_local Real feq[20] __attribute__((aligned(32)));
+__thread_local_fix Real _nu, _omega, _CSmago;
+__thread_local_fix Real Qo, S, omegaNew, rho, u_x, u_y, u_z, uxyzConst, nf6, nf10, nf14, *npc0;
+__thread_local_fix Real nfSub[20] __attribute__((aligned(32)));
+__thread_local_fix Real feq[20] __attribute__((aligned(32)));
 
 /* Vector */
-__thread_local floatv4 tmpV, fiV, rxyzV;
-__thread_local floatv4 uxyzConstV, u_xV, u_yV, u_zV, omegaNewV, rhoConstV;
-__thread_local floatv4 const1V = 1.0, const3V = 3.0, const4p5V = 4.5;
-__thread_local floatv4 eCoefV[20] __attribute__((aligned(32)));
+__thread_local_fix floatv4 tmpV, fiV, rxyzV;
+__thread_local_fix floatv4 uxyzConstV, u_xV, u_yV, u_zV, omegaNewV, rhoConstV;
+__thread_local_fix floatv4 const1V = 1.0, const3V = 3.0, const4p5V = 4.5;
+__thread_local_fix floatv4 eCoefV[20] __attribute__((aligned(32)));
 
 /* Extern */
 extern Real nu, omega, CSmago;
