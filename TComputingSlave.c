@@ -22,6 +22,7 @@ __thread_local Real nodesOtherLocal[MAXI][MAXJ][MAXK + 2][MAXL] __attribute__((a
 __thread_local char wallsLocal[MAXJ - 2][MAXK][MAXL + 1] __attribute__((aligned(128)));
 
 /* Collide */
+__thread_local Real _nu, _omega, _CSmago;
 __thread_local Real Qo, S, omegaNew, rho, u_x, u_y, u_z, uxyzConst, nf6, nf10, nf14, *npc0;
 __thread_local Real nfSub[20] __attribute__((aligned(32)));
 __thread_local Real feq[20] __attribute__((aligned(32)));
@@ -82,10 +83,11 @@ void collideIn() {
   u_z = simd_vextf3(rxyzV) / rho;
 
   for (l = 0; l < 19; l++) {
-    const Real tmp = (e_xI[l] * u_x + e_yI[l] * u_y + e_zI[l] * u_z);
-    feq[l] = wM[l] * rho * (1.0 - (1.5 * (u_x * u_x + u_y * u_y + u_z * u_z)) + (3.0 * tmp) + (4.5 * tmp * tmp));
+		const Real tmp = (e_xI[l] * u_x + e_yI[l] * u_y + e_zI[l] * u_z);
+		feq[l] = wM[l] * rho * (1.0 - (1.5 * (u_x * u_x + u_y * u_y + u_z * u_z)) + (3.0 * tmp) + (4.5 * tmp * tmp));
     nfSub[l] = npc0[l] - feq[l];
-  }
+	}
+
   Qo = 0;
   Qo += sqr(nfSub[2] + nfSub[3] + nfSub[6] + nfSub[7] + nfSub[8] + nfSub[9] + nfSub[14] + nfSub[15] + nfSub[16] + nfSub[17]);
   Qo += sqr(nfSub[6] - nfSub[7] - nfSub[8] + nfSub[9]);
@@ -93,18 +95,18 @@ void collideIn() {
 
   Real sij = nfSub[6] - nfSub[7] - nfSub[8];
   sij += e_yI[9] * e_xI[9] * nfSub[9];
-
   Qo += sij * sij;
+
   Qo += sqr(nfSub[0] + nfSub[1] + nfSub[6] + nfSub[7] + nfSub[8] + nfSub[9] + nfSub[10] + nfSub[11] + nfSub[12] + nfSub[13]);
   Qo += sqr(nfSub[10] - nfSub[11] - nfSub[12] + nfSub[13]);
   Qo += sqr(nfSub[14] - nfSub[15] - nfSub[16] + nfSub[17]);
   Qo += sqr(nfSub[10] - nfSub[11] - nfSub[12] + nfSub[13]);
   Qo += sqr(nfSub[4] + nfSub[5] + nfSub[10] + nfSub[11] + nfSub[12] + nfSub[13] + nfSub[14] + nfSub[15] + nfSub[16] + nfSub[17]);
-  S = (-nu + sqrt(nu * nu + 18 * CSmago * CSmago * sqrt(Qo))) / 6.0 / CSmago / CSmago;
-  omegaNew = 1.0 / (3.0 * (nu + CSmago * CSmago * S) + 0.5);
-  for (l = 0; l < 19; ++ l) {
-    npc0[l] = (1.0 - omegaNew) * npc0[l] + omegaNew * feq[l];
-  }
+  S = (-_nu + sqrt(_nu * _nu + 18 * _CSmago * _CSmago * sqrt(Qo))) / 6.0 / _CSmago / _CSmago;
+  omegaNew = 1.0 / (3.0 * (_nu + _CSmago * _CSmago * S) + 0.5);
+
+	for (l = 0; l < 19; l++)
+		npc0[l] = (1.0 - omegaNew) * npc0[l] + omegaNew * feq[l];
 }
 
 /* Input: 250 * 125 * 500 */
@@ -117,6 +119,10 @@ void computeOneStepParallel(long *para) {
   for(i = 0; i < 20; ++ i) {
     eCoefV[i] = simd_set_floatv4(1.0, e_xM[i], e_yM[i], e_zM[i]);
   }
+
+  _omega = omega;
+	_CSmago = CSmago;
+	_nu = (2.0 / _omega - 1.0) / 6.0;
 
   for(kST = 0; kST < nz; kST += MAXK) {
     for(i = 1; i < Xed - Xst + 1; ++ i) {
