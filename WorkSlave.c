@@ -78,32 +78,42 @@ void collide(Real *nodesPerCell)
 {
     int l;
     rxyzV = 0;
-    for (l = 0; l < 19; ++l)
-        rxyzV += (floatv4)(nodesPerCell[l]) * eCoefV[l];
+    rxyzV += (floatv4)(nodesPerCell[0]) * eCoefV[0];
+    rxyzV += (floatv4)(nodesPerCell[1]) * eCoefV[1];
+    rxyzV += (floatv4)(nodesPerCell[2]) * eCoefV[2];
+    rxyzV += (floatv4)(nodesPerCell[3]) * eCoefV[3];
+    rxyzV += (floatv4)(nodesPerCell[4]) * eCoefV[4];
+    rxyzV += (floatv4)(nodesPerCell[5]) * eCoefV[5];
+    rxyzV += (floatv4)(nodesPerCell[6]) * eCoefV[6];
+    rxyzV += (floatv4)(nodesPerCell[7]) * eCoefV[7];
+    rxyzV += (floatv4)(nodesPerCell[8]) * eCoefV[8];
+    rxyzV += (floatv4)(nodesPerCell[9]) * eCoefV[9];
+    rxyzV += (floatv4)(nodesPerCell[10]) * eCoefV[10];
+    rxyzV += (floatv4)(nodesPerCell[11]) * eCoefV[11];
+    rxyzV += (floatv4)(nodesPerCell[12]) * eCoefV[12];
+    rxyzV += (floatv4)(nodesPerCell[13]) * eCoefV[13];
+    rxyzV += (floatv4)(nodesPerCell[14]) * eCoefV[14];
+    rxyzV += (floatv4)(nodesPerCell[15]) * eCoefV[15];
+    rxyzV += (floatv4)(nodesPerCell[16]) * eCoefV[16];
+    rxyzV += (floatv4)(nodesPerCell[17]) * eCoefV[17];
+    rxyzV += (floatv4)(nodesPerCell[18]) * eCoefV[18];
+
     rho = simd_vextf0(rxyzV);
     u_x = simd_vextf1(rxyzV) / rho;
     u_y = simd_vextf2(rxyzV) / rho;
     u_z = simd_vextf3(rxyzV) / rho;
-
+    //rho = (u_x * u_x + u_y * u_y + u_z * u_z)
+    double tmp2 = 1.5 * (u_x * u_x + u_y * u_y + u_z * u_z);
 	for (l = 0; l < 19; l++) {
 		const Real tmp = (_e_x[l] * u_x + _e_y[l] * u_y + _e_z[l] * u_z);
-		feq[l] = _w[l] * rho * (1.0 -
-			(1.5 * (u_x * u_x + u_y * u_y + u_z * u_z)) +
-			(3.0 *     tmp) +
-			(4.5 * tmp * tmp));
+		feq[l] = _w[l] * rho * (1.0-tmp2+(3.0*tmp)+(4.5 * tmp * tmp));
         nfSub[l]=nodesPerCell[l]-feq[l];
 	}
     Qo=0;
-	//nf6 = nfSub[6] + nfSub[7] + nfSub[8] + nfSub[9];
-    //nf10 = nfSub[10] + nfSub[11] + nfSub[12] + nfSub[13];
-    //nf14 = nfSub[14] + nfSub[15] + nfSub[16] + nfSub[17];
     Qo += sqr(nfSub[2] + nfSub[3] + nfSub[6] + nfSub[7] + nfSub[8] + nfSub[9] + nfSub[14] + nfSub[15] + nfSub[16] + nfSub[17]);
     Qo += sqr(nfSub[6] - nfSub[7] - nfSub[8] + nfSub[9]);
     Qo += sqr(nfSub[14] - nfSub[15] - nfSub[16] + nfSub[17]);
-
-    Real sij=nfSub[6]-nfSub[7]-nfSub[8];
-    sij += _e_y[9] * _e_x[9] * nfSub[9];
-
+    double sij=nfSub[6]-nfSub[7]-nfSub[8]+nfSub[9];
 	Qo += sij * sij;
     Qo += sqr(nfSub[0] + nfSub[1] + nfSub[6] + nfSub[7] + nfSub[8] + nfSub[9] + nfSub[10] + nfSub[11] + nfSub[12] + nfSub[13]);
     Qo += sqr(nfSub[10] - nfSub[11] - nfSub[12] + nfSub[13]);
@@ -112,8 +122,26 @@ void collide(Real *nodesPerCell)
     Qo += sqr(nfSub[4] + nfSub[5] + nfSub[10] + nfSub[11] + nfSub[12] + nfSub[13] + nfSub[14] + nfSub[15] + nfSub[16] + nfSub[17]);
 	S = (-_nu + sqrt(_nu * _nu + 18 * _CSmago * _CSmago * sqrt(Qo))) / 6.0 / _CSmago / _CSmago;
 	omegaNew = 1.0 / (3.0 * (_nu + _CSmago * _CSmago * S) + 0.5);
-	for (l = 0; l < 19; l++)
-		nodesPerCell[l] =(1.0 - omegaNew) * nodesPerCell[l] +omegaNew * feq[l];
+    rho = (1.0-omegaNew);
+	nodesPerCell[0] = rho * nodesPerCell[0] +omegaNew * feq[0];
+    nodesPerCell[1] = rho * nodesPerCell[1] +omegaNew * feq[1];
+    nodesPerCell[2] = rho * nodesPerCell[2] +omegaNew * feq[2];
+    nodesPerCell[3] = rho * nodesPerCell[3] +omegaNew * feq[3];
+    nodesPerCell[4] = rho * nodesPerCell[4] +omegaNew * feq[4];
+    nodesPerCell[5] = rho * nodesPerCell[5] +omegaNew * feq[5];
+    nodesPerCell[6] = rho * nodesPerCell[6] +omegaNew * feq[6];
+    nodesPerCell[7] = rho * nodesPerCell[7] +omegaNew * feq[7];
+    nodesPerCell[8] = rho * nodesPerCell[8] +omegaNew * feq[8];
+    nodesPerCell[9] = rho * nodesPerCell[9] +omegaNew * feq[9];
+    nodesPerCell[10] = rho * nodesPerCell[10] +omegaNew * feq[10];
+    nodesPerCell[11] = rho * nodesPerCell[11] +omegaNew * feq[11];
+    nodesPerCell[12] = rho * nodesPerCell[12] +omegaNew * feq[12];
+    nodesPerCell[13] = rho * nodesPerCell[13] +omegaNew * feq[13];
+    nodesPerCell[14] = rho * nodesPerCell[14] +omegaNew * feq[14];
+    nodesPerCell[15] = rho * nodesPerCell[15] +omegaNew * feq[15];
+    nodesPerCell[16] = rho * nodesPerCell[16] +omegaNew * feq[16];
+    nodesPerCell[17] = rho * nodesPerCell[17] +omegaNew * feq[17];
+    nodesPerCell[18] = rho * nodesPerCell[18] +omegaNew * feq[18];
 }
 void workParallel(long *t)
 {
