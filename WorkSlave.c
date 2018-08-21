@@ -238,11 +238,25 @@ void workParallel(long *t)
                     {
                         if (wall[p][q][19] == 0)
                         {
-                            for (l = 0; l < 19; l++)
-                            {
-                                inv = _dfInv[l];
-                                ans[p][q][l] = node[(now + _e_y[inv] + 4) & 3][p + 1 + _e_x[inv]][q + tq + _e_z[inv]][l];
-                            }
+                            ans[p][q][ 0] = node[(now + 3) & 3][p + 1][q + tq    ][ 0];
+                            ans[p][q][ 1] = node[(now + 5) & 3][p + 1][q + tq    ][ 1];
+                            ans[p][q][ 2] = node[(now + 4) & 3][p    ][q + tq    ][ 2];
+                            ans[p][q][ 3] = node[(now + 4) & 3][p + 2][q + tq    ][ 3];
+                            ans[p][q][ 4] = node[(now + 4) & 3][p + 1][q + tq - 1][ 4];
+                            ans[p][q][ 5] = node[(now + 4) & 3][p + 1][q + tq + 1][ 5];
+                            ans[p][q][ 6] = node[(now + 3) & 3][p    ][q + tq    ][ 6];
+                            ans[p][q][ 7] = node[(now + 3) & 3][p + 2][q + tq    ][ 7];
+                            ans[p][q][ 8] = node[(now + 5) & 3][p    ][q + tq    ][ 8];
+                            ans[p][q][ 9] = node[(now + 5) & 3][p + 2][q + tq    ][ 9];
+                            ans[p][q][10] = node[(now + 3) & 3][p + 1][q + tq - 1][10];
+                            ans[p][q][11] = node[(now + 3) & 3][p + 1][q + tq + 1][11];
+                            ans[p][q][12] = node[(now + 5) & 3][p + 1][q + tq - 1][12];
+                            ans[p][q][13] = node[(now + 5) & 3][p + 1][q + tq + 1][13];
+                            ans[p][q][14] = node[(now + 4) & 3][p    ][q + tq - 1][14];
+                            ans[p][q][15] = node[(now + 4) & 3][p    ][q + tq + 1][15];
+                            ans[p][q][16] = node[(now + 4) & 3][p + 2][q + tq - 1][16];
+                            ans[p][q][17] = node[(now + 4) & 3][p + 2][q + tq + 1][17];
+                            ans[p][q][18] = node[(now + 4) & 3][p + 1][q + tq    ][18];
                             collide(ans[p][q]);
                         }
                         else if (wall[p][q][19] == 3)
