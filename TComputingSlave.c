@@ -114,6 +114,10 @@ void computeOneStepParallel(long *para) {
   threadInit();
 
   int i, j, k, l, t, m, kST, inv;
+  for(i = 0; i < 20; ++ i) {
+    eCoefV[i] = simd_set_floatv4(1.0, e_xM[i], e_yM[i], e_zM[i]);
+  }
+
   for(kST = 0; kST < nz; kST += MAXK) {
     for(i = 1; i < Xed - Xst + 1; ++ i) {
 
