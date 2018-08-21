@@ -70,6 +70,7 @@ inline void DMA_Put(void *source, void *target, int size) {
 
 void collide() {
   int l;
+
   rxyzV = 0;
   for (l = 0; l < 19; ++l) {
     rxyzV += (floatv4)(npc0[l]) * eCoefV[l];
@@ -91,7 +92,7 @@ void collide() {
   Qo += sqr(nfSub[14] - nfSub[15] - nfSub[16] + nfSub[17]);
 
   Real sij = nfSub[6] - nfSub[7] - nfSub[8];
-  sij += e_yM[9] * e_xM[9] * nfSub[9];
+  sij += e_yI[9] * e_xI[9] * nfSub[9];
 
   Qo += sij * sij;
   Qo += sqr(nfSub[0] + nfSub[1] + nfSub[6] + nfSub[7] + nfSub[8] + nfSub[9] + nfSub[10] + nfSub[11] + nfSub[12] + nfSub[13]);
@@ -99,9 +100,9 @@ void collide() {
   Qo += sqr(nfSub[14] - nfSub[15] - nfSub[16] + nfSub[17]);
   Qo += sqr(nfSub[10] - nfSub[11] - nfSub[12] + nfSub[13]);
   Qo += sqr(nfSub[4] + nfSub[5] + nfSub[10] + nfSub[11] + nfSub[12] + nfSub[13] + nfSub[14] + nfSub[15] + nfSub[16] + nfSub[17]);
-  S = (-_nu + sqrt(_nu * _nu + 18 * _CSmago * _CSmago * sqrt(Qo))) / 6.0 / _CSmago / _CSmago;
-  omegaNew = 1.0 / (3.0 * (_nu + _CSmago * _CSmago * S) + 0.5);
-  for (l = 0; l < 19; l++) {
+  S = (-nu + sqrt(nu * nu + 18 * CSmago * CSmago * sqrt(Qo))) / 6.0 / CSmago / CSmago;
+  omegaNew = 1.0 / (3.0 * (nu + CSmago * CSmago * S) + 0.5);
+  for (l = 0; l < 19; ++ l) {
     npc0[l] = (1.0 - omegaNew) * npc0[l] + omegaNew * feq[l];
   }
 }
