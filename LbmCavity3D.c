@@ -253,16 +253,14 @@ int main(int argc, char *argv[])
 		      temp_rd,
 		      temp_ru);
 
-  if(myrank == 0) {
-		MLOG("Step >> [%d/%d] Computing Step Started. \n", s + 1, STEPS);
-	}
   computeOneStep(nodes, wallsChar, flags, Xst, Xed, Yst, Yed, Z, current);
 
 	other = current;
 	current ^= 1;
 
-	if(myrank == 0) {
-		MLOG("Step >> [%d/%d] Calculation Completed. \n\n", s + 1, STEPS);
+  if(myrank == 0 && STEPS >= 10 && (s + 1)%(STEPS/10) == 0.0) {
+		n += 1;
+		MLOG("Step >> [%d/%d] Calculation Completed %d%% \n", s + 1, STEPS, n * 10);
 	}
 
 	}

@@ -93,11 +93,13 @@ void collideIn() {
   u_y = simd_vextf2(rxyzV) / rho;
   u_z = simd_vextf3(rxyzV) / rho;
 
+  Real tmp;
+
   for (l = 0; l < 19; l++) {
-		const Real tmp = (e_xI[l] * u_x + e_yI[l] * u_y + e_zI[l] * u_z);
-		feq[l] = wM[l] * rho * (1.0 - (1.5 * (u_x * u_x + u_y * u_y + u_z * u_z)) + (3.0 * tmp) + (4.5 * tmp * tmp));
-    nfSub[l] = npc0[l] - feq[l];
-	}
+   tmp = (e_xI[l] * u_x + e_yI[l] * u_y + e_zI[l] * u_z);
+   feq[l] = wM[l] * rho * (1.0 - (1.5 * (u_x * u_x + u_y * u_y + u_z * u_z)) + (3.0 * tmp) + (4.5 * tmp * tmp));
+   nfSub[l] = npc0[l] - feq[l];
+ }
 
   Qo = 0;
   Qo += sqr(nfSub[2] + nfSub[3] + nfSub[6] + nfSub[7] + nfSub[8] + nfSub[9] + nfSub[14] + nfSub[15] + nfSub[16] + nfSub[17]);
