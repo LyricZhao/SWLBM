@@ -11,7 +11,7 @@ __thread_local Real _w[20]__attribute__((aligned(32))) = {
  	(1./18.),(1./18.),(1./18.),(1./18.),(1./18.),(1./18.),
  	(1./36.),(1./36.),(1./36.),(1./36.),(1./36.),(1./36.),
  	(1./36.),(1./36.),(1./36.),(1./36.),(1./36.),(1./36.),(1./3.),(0.0) };
-     
+
 __thread_local int my_id;
 
 __thread_local Real *****nodes;
@@ -100,7 +100,7 @@ void collide(Real *nodesPerCell)
     Qo += sqr(nfSub[2] + nfSub[3] + nfSub[6] + nfSub[7] + nfSub[8] + nfSub[9] + nfSub[14] + nfSub[15] + nfSub[16] + nfSub[17]);
     Qo += sqr(nfSub[6] - nfSub[7] - nfSub[8] + nfSub[9]);
     Qo += sqr(nfSub[14] - nfSub[15] - nfSub[16] + nfSub[17]);
-    
+
     Real sij=nfSub[6]-nfSub[7]-nfSub[8];
     sij += _e_y[9] * _e_x[9] * nfSub[9];
 
@@ -112,7 +112,7 @@ void collide(Real *nodesPerCell)
     Qo += sqr(nfSub[4] + nfSub[5] + nfSub[10] + nfSub[11] + nfSub[12] + nfSub[13] + nfSub[14] + nfSub[15] + nfSub[16] + nfSub[17]);
 	S = (-_nu + sqrt(_nu * _nu + 18 * _CSmago * _CSmago * sqrt(Qo))) / 6.0 / _CSmago / _CSmago;
 	omegaNew = 1.0 / (3.0 * (_nu + _CSmago * _CSmago * S) + 0.5);
-	for (l = 0; l < 19; l++) 
+	for (l = 0; l < 19; l++)
 		nodesPerCell[l] =(1.0 - omegaNew) * nodesPerCell[l] +omegaNew * feq[l];
 }
 void workParallel(long *t)
@@ -146,7 +146,7 @@ void workParallel(long *t)
 
     for (i = 0; i < 20; ++i)
         eCoefV[i] = simd_set_floatv4(1.0, _e_x[i], _e_y[i], _e_z[i]);
-    
+
     for (i = 1; i <= xe; i += 10)
     {
         for (k = 0; k < ze; k += 10)
@@ -183,11 +183,25 @@ void workParallel(long *t)
                     {
                         if (wall[p][q][19] == 0)
                         {
-                            for (l = 0; l < 19; l++)
-                            {
-                                inv = _dfInv[l];
-                                ans[p][q][l] = node[(now + _e_y[inv] + 4) & 3][p + 1 + _e_x[inv]][q + tq + _e_z[inv]][l];
-                            }
+                            ans[p][q][ 0] = node[(now + 3) & 3][p + 1][q + tq    ][ 0];
+                            ans[p][q][ 1] = node[(now + 5) & 3][p + 1][q + tq    ][ 1];
+                            ans[p][q][ 2] = node[(now + 4) & 3][p    ][q + tq    ][ 2];
+                            ans[p][q][ 3] = node[(now + 4) & 3][p + 2][q + tq    ][ 3];
+                            ans[p][q][ 4] = node[(now + 4) & 3][p + 1][q + tq - 1][ 4];
+                            ans[p][q][ 5] = node[(now + 4) & 3][p + 1][q + tq + 1][ 5];
+                            ans[p][q][ 6] = node[(now + 3) & 3][p    ][q + tq    ][ 6];
+                            ans[p][q][ 7] = node[(now + 3) & 3][p + 2][q + tq    ][ 7];
+                            ans[p][q][ 8] = node[(now + 5) & 3][p    ][q + tq    ][ 8];
+                            ans[p][q][ 9] = node[(now + 5) & 3][p + 2][q + tq    ][ 9];
+                            ans[p][q][10] = node[(now + 3) & 3][p + 1][q + tq - 1][10];
+                            ans[p][q][11] = node[(now + 3) & 3][p + 1][q + tq + 1][11];
+                            ans[p][q][12] = node[(now + 5) & 3][p + 1][q + tq - 1][12];
+                            ans[p][q][13] = node[(now + 5) & 3][p + 1][q + tq + 1][13];
+                            ans[p][q][14] = node[(now + 4) & 3][p    ][q + tq - 1][14];
+                            ans[p][q][15] = node[(now + 4) & 3][p    ][q + tq + 1][15];
+                            ans[p][q][16] = node[(now + 4) & 3][p + 2][q + tq - 1][16];
+                            ans[p][q][17] = node[(now + 4) & 3][p + 2][q + tq + 1][17];
+                            ans[p][q][18] = node[(now + 4) & 3][p + 1][q + tq    ][18];
                             collide(ans[p][q]);
                         }
                         else if (wall[p][q][19] == 3)
