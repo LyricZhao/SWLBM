@@ -68,7 +68,7 @@ inline void DMA_Put(void *source, void *target, int size) {
   while(wait != 1);
 }
 
-void collide() {
+void collideIn() {
   int l;
 
   rxyzV = 0;
@@ -82,8 +82,8 @@ void collide() {
   u_z = simd_vextf3(rxyzV) / rho;
 
   for (l = 0; l < 19; l++) {
-    const Real tmp = (_e_x[l] * u_x + _e_y[l] * u_y + _e_z[l] * u_z);
-    feq[l] = _w[l] * rho * (1.0 - (1.5 * (u_x * u_x + u_y * u_y + u_z * u_z)) + (3.0 * tmp) + (4.5 * tmp * tmp));
+    const Real tmp = (e_xI[l] * u_x + e_yI[l] * u_y + e_zI[l] * u_z);
+    feq[l] = wM[l] * rho * (1.0 - (1.5 * (u_x * u_x + u_y * u_y + u_z * u_z)) + (3.0 * tmp) + (4.5 * tmp * tmp));
     nfSub[l] = npc0[l] - feq[l];
   }
   Qo = 0;
@@ -168,7 +168,7 @@ void computeOneStepParallel(long *para) {
             npc0[16] = nodesOtherLocal[ia1][jn0][k    ][16];
             npc0[17] = nodesOtherLocal[ia1][jn0][k + 2][17];
             npc0[18] = nodesOtherLocal[in0][jn0][k + 1][18];
-            collide();
+            collideIn();
           } else if(flagsM[k] == BOUNCE) {
             for(l = 0; l < 19; ++ l) {
               inv = dfInvM[l];
@@ -178,7 +178,7 @@ void computeOneStepParallel(long *para) {
                 npc0[l] = nodesOtherLocal[(i + e_xI[inv]) % 3][(j + e_yI[inv]) & 3][k + e_zI[inv] + 1][l];
               }
             }
-            collide();
+            collideIn();
           }
 
         } // Loop k

@@ -7,7 +7,7 @@ CFLAGS = -O3 -I/usr/sw-mpp/mpi2/include/ -lm -msimd
 CFLAGS_HOST = -host $(CFLAGS)
 CFLAGS_SLAVE = -slave $(CFLAGS)
 
-LDFLAGS =
+LDFLAGS = -hybrid
 
 OBJ = LbmCavity3D.o Parallel.o TComputing.o TComputingSlave.o
 OBJ_N = LbmCavity3D.o Collide.o Parallel.o Stream.o
