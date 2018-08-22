@@ -84,9 +84,25 @@ void collideIn() {
   int l;
 
   rxyzV = 0;
-  for (l = 0; l < 19; ++l) {
-    rxyzV += (floatv4)(npc0[l]) * eCoefV[l];
-  }
+  rxyzV += (floatv4)(npc0[ 0]) * eCoefV[ 0];
+  rxyzV += (floatv4)(npc0[ 1]) * eCoefV[ 1];
+  rxyzV += (floatv4)(npc0[ 2]) * eCoefV[ 2];
+  rxyzV += (floatv4)(npc0[ 3]) * eCoefV[ 3];
+  rxyzV += (floatv4)(npc0[ 4]) * eCoefV[ 4];
+  rxyzV += (floatv4)(npc0[ 5]) * eCoefV[ 5];
+  rxyzV += (floatv4)(npc0[ 6]) * eCoefV[ 6];
+  rxyzV += (floatv4)(npc0[ 7]) * eCoefV[ 7];
+  rxyzV += (floatv4)(npc0[ 8]) * eCoefV[ 8];
+  rxyzV += (floatv4)(npc0[ 9]) * eCoefV[ 9];
+  rxyzV += (floatv4)(npc0[10]) * eCoefV[10];
+  rxyzV += (floatv4)(npc0[11]) * eCoefV[11];
+  rxyzV += (floatv4)(npc0[12]) * eCoefV[12];
+  rxyzV += (floatv4)(npc0[13]) * eCoefV[13];
+  rxyzV += (floatv4)(npc0[14]) * eCoefV[14];
+  rxyzV += (floatv4)(npc0[15]) * eCoefV[15];
+  rxyzV += (floatv4)(npc0[16]) * eCoefV[16];
+  rxyzV += (floatv4)(npc0[17]) * eCoefV[17];
+  rxyzV += (floatv4)(npc0[18]) * eCoefV[18];
 
   rho = simd_vextf0(rxyzV);
   u_x = simd_vextf1(rxyzV) / rho;
@@ -94,12 +110,13 @@ void collideIn() {
   u_z = simd_vextf3(rxyzV) / rho;
 
   Real tmp;
+  double tmp2 = 1.5 * (u_x * u_x + u_y * u_y + u_z * u_z);
 
   for (l = 0; l < 19; l++) {
    tmp = (e_xI[l] * u_x + e_yI[l] * u_y + e_zI[l] * u_z);
-   feq[l] = wM[l] * rho * (1.0 - (1.5 * (u_x * u_x + u_y * u_y + u_z * u_z)) + (3.0 * tmp) + (4.5 * tmp * tmp));
+   feq[l] = wM[l] * rho * (1.0 - tmp2 + (3.0 * tmp) + (4.5 * tmp * tmp));
    nfSub[l] = npc0[l] - feq[l];
- }
+  }
 
   Qo = 0;
   Qo += sqr(nfSub[2] + nfSub[3] + nfSub[6] + nfSub[7] + nfSub[8] + nfSub[9] + nfSub[14] + nfSub[15] + nfSub[16] + nfSub[17]);
@@ -118,8 +135,26 @@ void collideIn() {
   S = (-_nu + sqrt(_nu * _nu + 18 * _CSmago * _CSmago * sqrt(Qo))) / 6.0 / _CSmago / _CSmago;
   omegaNew = 1.0 / (3.0 * (_nu + _CSmago * _CSmago * S) + 0.5);
 
-	for (l = 0; l < 19; l++)
-		npc0[l] = (1.0 - omegaNew) * npc0[l] + omegaNew * feq[l];
+  rho = 1.0 - omegaNew;
+  npc0[ 0] = rho * npc0[ 0] + omegaNew * feq[ 0];
+  npc0[ 1] = rho * npc0[ 1] + omegaNew * feq[ 1];
+  npc0[ 2] = rho * npc0[ 2] + omegaNew * feq[ 2];
+  npc0[ 3] = rho * npc0[ 3] + omegaNew * feq[ 3];
+  npc0[ 4] = rho * npc0[ 4] + omegaNew * feq[ 4];
+  npc0[ 5] = rho * npc0[ 5] + omegaNew * feq[ 5];
+  npc0[ 6] = rho * npc0[ 6] + omegaNew * feq[ 6];
+  npc0[ 7] = rho * npc0[ 7] + omegaNew * feq[ 7];
+  npc0[ 8] = rho * npc0[ 8] + omegaNew * feq[ 8];
+  npc0[ 9] = rho * npc0[ 9] + omegaNew * feq[ 9];
+  npc0[10] = rho * npc0[10] + omegaNew * feq[10];
+  npc0[11] = rho * npc0[11] + omegaNew * feq[11];
+  npc0[12] = rho * npc0[12] + omegaNew * feq[12];
+  npc0[13] = rho * npc0[13] + omegaNew * feq[13];
+  npc0[14] = rho * npc0[14] + omegaNew * feq[14];
+  npc0[15] = rho * npc0[15] + omegaNew * feq[15];
+  npc0[16] = rho * npc0[16] + omegaNew * feq[16];
+  npc0[17] = rho * npc0[17] + omegaNew * feq[17];
+  npc0[18] = rho * npc0[18] + omegaNew * feq[18];
 }
 
 /* Input: 250 * 125 * 500 */
