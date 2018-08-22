@@ -20,6 +20,7 @@ __thread_local_fix Real nodesCurrentLocal[MAXJ - 2][MAXK][MAXL] __attribute__((a
 /* Main Vars */
 __thread_local_fix Real nodesOtherLocal[MAXI][MAXJ][MAXK + 2][MAXL] __attribute__((aligned(128)));
 __thread_local_fix char wallsLocal[MAXJ - 2][MAXK][MAXL + 1] __attribute__((aligned(128)));
+__thread_local_fix char compA[10][251][2];
 
 /* Collide */
 __thread_local_fix Real _nu, _omega, _CSmago;
@@ -193,6 +194,7 @@ void computeOneStepParallel(long *para) {
 
       targetWalls = waitWalls = 0;
       for(j = threadST; j < threadED; ++ j) {
+        if(compA[kST / MAXK][i][j - threadST] == 1) continue;
         ++ targetWalls;
         athread_get(PE_MODE, &walls[i][j][kST][0], &wallsLocal[j & 1][0][0], MAXK * (MAXL + 1) * sizeof(char), (void*) &waitWalls, 0, 0, 0);
       }
@@ -201,6 +203,7 @@ void computeOneStepParallel(long *para) {
 
       /* Compute */
       for(j = threadST; j < threadED; ++ j) {
+        if(compA[kST / MAXK][i][j - threadST] == 1) continue;
         for(k = 0; k < MAXK; ++ k) {
           npc0 = nodesCurrentLocal[j & 1][k];
 
@@ -237,25 +240,10 @@ void computeOneStepParallel(long *para) {
               }
             }
           } else {
-            npc0[ 0] = nodesOtherLocal[in0][jn0][k + 1][ 0];
-            npc0[ 1] = nodesOtherLocal[in0][jn0][k + 1][ 1];
-            npc0[ 2] = nodesOtherLocal[in0][jn0][k + 1][ 2];
-            npc0[ 3] = nodesOtherLocal[in0][jn0][k + 1][ 3];
-            npc0[ 4] = nodesOtherLocal[in0][jn0][k + 1][ 4];
-            npc0[ 5] = nodesOtherLocal[in0][jn0][k + 1][ 5];
-            npc0[ 6] = nodesOtherLocal[in0][jn0][k + 1][ 6];
-            npc0[ 7] = nodesOtherLocal[in0][jn0][k + 1][ 7];
-            npc0[ 8] = nodesOtherLocal[in0][jn0][k + 1][ 8];
-            npc0[ 9] = nodesOtherLocal[in0][jn0][k + 1][ 9];
-            npc0[10] = nodesOtherLocal[in0][jn0][k + 1][10];
-            npc0[11] = nodesOtherLocal[in0][jn0][k + 1][11];
-            npc0[12] = nodesOtherLocal[in0][jn0][k + 1][12];
-            npc0[13] = nodesOtherLocal[in0][jn0][k + 1][13];
-            npc0[14] = nodesOtherLocal[in0][jn0][k + 1][14];
-            npc0[15] = nodesOtherLocal[in0][jn0][k + 1][15];
-            npc0[16] = nodesOtherLocal[in0][jn0][k + 1][16];
-            npc0[17] = nodesOtherLocal[in0][jn0][k + 1][17];
-            npc0[18] = nodesOtherLocal[in0][jn0][k + 1][18];
+            int nowk = k;
+            while(wallsLocal[j & 1][k][19] != FLUID && wallsLocal[j & 1][k][19] != BOUNCE && k < MAXK) ++ k;
+            memcpy((void *)npc0, (void *)nodesOtherLocal[in0][jn0][nowk + 1], 19 * (k - nowk) * sizeof(Real));
+            -- k;
           }
         } // Loop k
       }
@@ -263,9 +251,12 @@ void computeOneStepParallel(long *para) {
       if(i != Xed - Xst) CommunicateGetWithoutWalls(i + 1, kST);
 
       for(j = threadST; j < threadED; ++ j) {
+        if(compA[kST / MAXK][i][j - threadST] == 1) continue;
+        char inflag = 0;
         for(k = 0; k < MAXK; ++ k) {
           if(wallsLocal[j & 1][k][19] == FLUID || wallsLocal[j & 1][k][19] == BOUNCE) {
               npc0 = nodesCurrentLocal[j & 1][k];
+              inflag |= 1;
               collideIn();
           }
         }
@@ -273,8 +264,10 @@ void computeOneStepParallel(long *para) {
           continue;
         ++ putTarget;
         athread_put(PE_MODE, &nodesCurrentLocal[j & 1][0][0], &nodes[current][i][j][kST][0], MAXK * MAXL * sizeof(Real), (void *) &putFlag, 0, 0);
+        if(!inflag) compA[kST / MAXK][i][j - threadST] = 1;
       }
     }
+
   }
   while(putTarget != putFlag);
 }
