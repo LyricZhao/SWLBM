@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
 		{
 			for(i = Xst; i < Xed; i++) {
 				for(j = Yst; j < Yed; j++) {
-					if(i!=Xst&&i!=Xed-1&&j!=Yst&&j!=Yed-1) continue;
+					if(i!=Xst&&i!=Xed-1) continue;
 					for(k = 0; k < Z; k++) {
 						Real *npc0=nodes[current][i - Xst + 1][j - Yst + 1][k];
 						Real ****nodesOtherLocal=nodes[other];

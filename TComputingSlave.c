@@ -35,7 +35,7 @@ __thread_local_fix floatv4 eCoefV[20] __attribute__((aligned(32)));
 
 /* Extern */
 extern Real nu, omega, CSmago;
-__thread_local_fix int* updateflag;
+__thread_local_fix volatile int* updateflag;
 
 inline void setParas(long *para) {
   nodes = (Real *****) para[0]; walls = (char ****) para[1];
