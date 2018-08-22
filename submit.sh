@@ -1,1 +1,1 @@
-~/papp_cloud-2.5.2/papp_cloud_mac64 scp -i ~/cpc ../SWLBM/ cpc051@wx:~/zhaocg/
+scp -r ../SWLBM/ cpc051@41.0.0.188:~/zhaocg/

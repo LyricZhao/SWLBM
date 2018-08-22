@@ -42,4 +42,4 @@ const Real e_zM[20] = {0, 0, 0, 0, 1,-1, 0, 0, 0, 0, 1,-1, 1,-1, 1,-1, 1,-1, 0, 
 	 18:  0  0  0
 */
 
-void computeOneStep(Real *****nodes, int ****walls, int ***flags, int Xst, int Xed, int Yst, int Yed, int nz, int current);
+void computeOneStep(Real *****nodes, char ****walls, int ***flags, int Xst, int Xed, int Yst, int Yed, int nz, int current);

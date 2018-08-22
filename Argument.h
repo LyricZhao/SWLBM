@@ -30,7 +30,7 @@
 							  tmif->tm_mday, \
 							  tmif->tm_hour, \
 							  tmif->tm_min, \
-							  tmif->tm_sec, ##__VA_ARGS__); }} 
+							  tmif->tm_sec, ##__VA_ARGS__); }}
 #endif
 
 #define TLOG(M, ...)  {if(myrank == 0) { \
@@ -88,7 +88,7 @@ int right_nbr = -1,
     ru_nbr    = -1,
     ld_nbr    = -1,
     rd_nbr    = -1;
-
+	
 /*----------------------------------------------------*
  *   the weight for the equilibrium distribution
  *   -------------------------------------------------*/
@@ -173,58 +173,58 @@ void stream(Real *****nodes, int ****walls, int ***flags, int Xst, int Xed, int 
 
 void SetMPI(MPI_Comm mycomm, int *dims, int *coords);
 
-void INITINPUT(int X, int Y, int Z, int Xst, int Xed, int Yst, int Yed, int x_sec, int y_sec, 
+void INITINPUT(int X, int Y, int Z, int Xst, int Xed, int Yst, int Yed, int x_sec, int y_sec,
 		       int myrank, int size, char *user, int *local_rankinfo, int **rankinfo, int ***flags);
 
-int OUTPUT(int X, int Y, int Z, int Xst, int Xed, int Yst, int Yed, int s, 
-		   int myrank, int size, int other, int x_sec, int y_sec, char *user, 
+int OUTPUT(int X, int Y, int Z, int Xst, int Xed, int Yst, int Yed, int s,
+		   int myrank, int size, int other, int x_sec, int y_sec, char *user,
 		   Real **local_image, Real **image, int **rankinfo, Real *****nodes);
 
 void bounce_send_init_test (int X, int Y, int Z,
-							int Xst, int Xed, int Yst, int Yed, 
-							int x_sec, int y_sec, int corrent, int other, 
+							int Xst, int Xed, int Yst, int Yed,
+							int x_sec, int y_sec, int corrent, int other,
 							Real *****nodes,
 						    Real ***temp_left_send,
-							Real ***temp_right_send, 
-							Real ***temp_up_send, 
+							Real ***temp_right_send,
+							Real ***temp_up_send,
 							Real ***temp_down_send,
-						    Real **temp_ld_send, 
-							Real **temp_lu_send, 
-							Real **temp_rd_send, 
+						    Real **temp_ld_send,
+							Real **temp_lu_send,
+							Real **temp_rd_send,
 							Real **temp_ru_send);
 
-void bounce_communicate_Itest(MPI_Comm mycomm, int *dims, int *coords, 
+void bounce_communicate_Itest(MPI_Comm mycomm, int *dims, int *coords,
 							  int x_sec, int y_sec, int Z, int *l_count,
 							  MPI_Status *sta, MPI_Request *req,
-							  Real ***temp_left_send, 
-							  Real ***temp_right_send, 
-							  Real ***temp_up_send, 
-							  Real ***temp_down_send, 
-							  Real ***temp_left, 
-							  Real ***temp_right, 
-							  Real ***temp_up, 
+							  Real ***temp_left_send,
+							  Real ***temp_right_send,
+							  Real ***temp_up_send,
+							  Real ***temp_down_send,
+							  Real ***temp_left,
+							  Real ***temp_right,
+							  Real ***temp_up,
 							  Real ***temp_down,
-							  Real **temp_lu_send, 
-							  Real **temp_ld_send, 
-							  Real **temp_ru_send, 
-							  Real **temp_rd_send, 
-							  Real **temp_lu, 
-							  Real **temp_ld, 
-							  Real **temp_ru, 
+							  Real **temp_lu_send,
+							  Real **temp_ld_send,
+							  Real **temp_ru_send,
+							  Real **temp_rd_send,
+							  Real **temp_lu,
+							  Real **temp_ld,
+							  Real **temp_ru,
 							  Real **temp_rd);
 
 void bounce_update_test(int X, int Y, int Z,
-						int Xst, int Xed, int Yst, int Yed, 
+						int Xst, int Xed, int Yst, int Yed,
 						int myrank, int x_sec, int y_sec,
 						int other,
 						Real *****nodes,
-					    Real ***temp_left, 
-						Real ***temp_right, 
-						Real ***temp_up, 
+					    Real ***temp_left,
+						Real ***temp_right,
+						Real ***temp_up,
 						Real ***temp_down,
-					    Real **temp_ld, 
-						Real **temp_lu, 
-						Real **temp_rd, 
+					    Real **temp_ld,
+						Real **temp_lu,
+						Real **temp_rd,
 						Real **temp_ru);
 
 #endif

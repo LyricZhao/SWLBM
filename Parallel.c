@@ -81,75 +81,83 @@ void bounce_send_init(int X,
     int i, j, k, l;
 
     if(Xst != 0) {
-		for (i = Yst; i < Yed; i++) {
+		memcpy(&temp_left_send[0][0][0],&nodes[other][1][1][0][0],(Yed-Yst)*Z*76);
+		/*for (i = Yst; i < Yed; i++) {
 			for (j = 0; j < Z; j++) {
 				for(l = 0; l < 19; l++) {
 					temp_left_send[i - Yst][j][l] = nodes[other][1][i - Yst + 1][j][l];
 				}
 			}
-		}
+		}*/
 	}
 
     if(Xed != X) { 
-		for (i = Yst; i < Yed; i++) {
+		memcpy(&temp_right_send[0][0][0],&nodes[other][x_sec][1][0][0],(Yed-Yst)*Z*76);
+		/*for (i = Yst; i < Yed; i++) {
 			for (j = 0; j < Z; j++) {
 				for(l = 0; l < 19; l++) {
 					   temp_right_send[i - Yst][j][l] = nodes[other][x_sec][i - Yst + 1][j][l];
 				}
 			}
-		}
+		}*/
 	}
 
     if(Yst != 0) {
 		for (i = Xst; i < Xed; i++) {
-			for (j = 0; j < Z; j++) {
+			memcpy(&temp_down_send[i-Xst][0][0],&nodes[other][i - Xst + 1][1][0][0],Z*76);
+			/*for (j = 0; j < Z; j++) {
 				for(l = 0; l < 19; l++) {
 					 temp_down_send[i - Xst][j][l] = nodes[other][i - Xst + 1][1][j][l];
 				}
-			}
+			}*/
 		}
 	}
 
     if(Yed != Y) { 
 		for (i = Xst; i < Xed; i++ ) {
-			for (j = 0; j < Z; j++) {
+			memcpy(&temp_up_send[i-Xst][0][0],&nodes[other][i - Xst + 1][y_sec][0][0],Z*76);
+			/*for (j = 0; j < Z; j++) {
 				for(l = 0; l < 19; l++) {
 					temp_up_send[i - Xst][j][l] = nodes[other][i - Xst + 1][y_sec][j][l];
 				}
-			}
+			}*/
 		}
 	}
 
     if (Xst != 0 && Yst != 0) {
-        for (j = 0; j < Z; j++) {
+		memcpy(&temp_ld_send[0][0],&nodes[other][1][1][0][0],Z*76);
+        /*for (j = 0; j < Z; j++) {
             for(l = 0; l < 19; l++) {
                 temp_ld_send[j][l] = nodes[other][1][1][j][l];
 			}
-		}
+		}*/
 	}
 
     if (Xst != 0 && Yed != Y) {
-        for (j = 0; j < Z; j++) {
+		memcpy(&temp_lu_send[0][0],&nodes[other][1][y_sec][0][0],Z*76);
+        /*for (j = 0; j < Z; j++) {
             for(l = 0; l < 19; l++) {
                 temp_lu_send[j][l] = nodes[other][1][y_sec][j][l];
 			}
-		}
+		}*/
 	}
 
     if (Xed != X && Yst != 0) {
-        for (j = 0; j < Z; j++) {
+		memcpy(&temp_rd_send[0][0],&nodes[other][x_sec][1][0][0],Z*76);
+        /*for (j = 0; j < Z; j++) {
             for(l = 0; l < 19; l++) {
                 temp_rd_send[j][l] = nodes[other][x_sec][1][j][l];
 			}
-		}
+		}*/
 	}
 
     if (Xed != X && Yed != Y) {
-        for (j = 0; j < Z; j++) {
+		memcpy(&temp_ru_send[0][0],&nodes[other][x_sec][y_sec][0][0],Z*76);
+        /*for (j = 0; j < Z; j++) {
             for(l = 0; l < 19; l++) {
                 temp_ru_send[j][l] = nodes[other][x_sec][y_sec][j][l];
 			}
-		}
+		}*/
 	}
 }
 
@@ -343,74 +351,82 @@ void bounce_update(int X,
     int i, j, k, l;
 
     if(Xst != 0) { 
-		for (i = Yst; i < Yed; i++) {
+		memcpy(&nodes[other][0][1][0][0],&temp_left[0][0][0],(Yed-Yst)*Z*76);
+		/*for (i = Yst; i < Yed; i++) {
 			for (j = 0; j < Z; j++) {
 				for(l = 0; l < 19; l++) {
 					nodes[other][0][i - Yst + 1][j][l] = temp_left[i - Yst][j][l];
 				}
 			}
-		}
+		}*/
 	}
 
     if(Xed != X) { 
-		for (i = Yst; i < Yed; i++) {
+		memcpy(&nodes[other][x_sec + 1][1][0][0],&temp_right[0][0][0],(Yed-Yst)*Z*76);
+		/*for (i = Yst; i < Yed; i++) {
 			for (j = 0; j < Z; j++) {
 				for(l = 0; l < 19; l++) {
 					nodes[other][x_sec + 1][i - Yst + 1][j][l] = temp_right[i - Yst][j][l];
 				}
 			}
-		}
+		}*/
 	}
 
     if(Yst != 0) { 
 		for (i = Xst; i < Xed; i++) {
-			for (j = 0; j < Z; j++) {
+			memcpy(&nodes[other][i - Xst + 1][0][0][0],&temp_down[i-Xst][0][0],Z*76);
+			/*for (j = 0; j < Z; j++) {
 				for(l = 0; l < 19; l++) {
 					nodes[other][i - Xst + 1][0][j][l] = temp_down[i - Xst][j][l];
 				}
-			}
+			}*/
 		}
 	}
 
     if(Yed != Y) {
 		for (i = Xst; i < Xed; i++) {
-			for (j = 0; j < Z; j++) {
+			memcpy(&nodes[other][i - Xst + 1][y_sec + 1][0][0],&temp_up[i-Xst][0][0],Z*76);
+			/*for (j = 0; j < Z; j++) {
 				for(l = 0; l < 19; l++) {
 					nodes[other][i - Xst + 1][y_sec + 1][j][l] = temp_up[i - Xst][j][l];
 				}
-			}
+			}*/
 		}
 	}
 
     if (Xst != 0 && Yst != 0) {
-        for (j = 0; j < Z; j++) {
+		memcpy(&nodes[other][0][0][0][0],&temp_ld[0][0],Z*76);
+        /*for (j = 0; j < Z; j++) {
             for(l = 0; l < 19; l++) {
                 nodes[other][0][0][j][l] = temp_ld[j][l];
             }
-		}
+		}*/
 	}
 
     if (Xst != 0 && Yed != Y) {
-        for (j = 0; j < Z; j++) {
+		memcpy(&nodes[other][0][y_sec+1][0][0],&temp_lu[0][0],Z*76);
+        /*for (j = 0; j < Z; j++) {
             for(l = 0; l < 19; l++) {
                 nodes[other][0][y_sec + 1][j][l] = temp_lu[j][l];
             }
-		}
+		}*/
 	}
 
     if (Xed != X && Yst != 0) {
-        for (j = 0; j < Z; j++) {
+		memcpy(&nodes[other][x_sec+1][0][0][0],&temp_rd[0][0],Z*76);
+        /*for (j = 0; j < Z; j++) {
             for(l = 0; l < 19; l++) {
                 nodes[other][x_sec + 1][0][j][l] = temp_rd[j][l];
             }
-		}
+		}*/
 	}
 
     if (Xed != X && Yed != Y) {
-        for (j = 0; j < Z; j++) {
+		memcpy(&nodes[other][x_sec+1][y_sec+1][0][0],&temp_ru[0][0],Z*76);
+        /*for (j = 0; j < Z; j++) {
             for(l = 0; l < 19; l++) {
                 nodes[other][x_sec + 1][y_sec + 1][j][l] = temp_ru[j][l];
             }
-		}
+		}*/
 	}
 }
