@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
   		//computeOneStep(nodes, wallsChar, flags, Xst, Xed, Yst, Yed, Z, current);
 		athread_join64();
 		other = current;
-		current = (current+1)%2;
+		current = current^1;
 
 		if(myrank == 0 && STEPS >= 10 && (s + 1)%(STEPS/10) == 0.0) {
 				n += 1;
