@@ -88,7 +88,7 @@ int right_nbr = -1,
     ru_nbr    = -1,
     ld_nbr    = -1,
     rd_nbr    = -1;
-	
+
 /*----------------------------------------------------*
  *   the weight for the equilibrium distribution
  *   -------------------------------------------------*/

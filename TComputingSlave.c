@@ -4,6 +4,7 @@
 # include <math.h>
 # include <stdio.h>
 # include <assert.h>
+# include <string.h>
 
 # include "ArgumentMT.h"
 
@@ -289,24 +290,24 @@ void preworkSlave(long *para){
   if(st>250) st=250;
   if(ed>250) ed=250;
 
-  prewall=para[0];
-  preflag=para[1];
-  returnwall=para[2];
+  prewall=(int ****)para[0];
+  preflag=(int ***)para[1];
+  returnwall=(char ****)para[2];
   int i,j,k,l;
   volatile unsigned long flag[2],putflag[2];
   putflag[1]=1;
   putflag[0]=1;
-  for(i=st;i<ed;i++)   
+  for(i=st;i<ed;i++)
   {
     flag[0]=0;
-    athread_get(PE_MODE,&prewall[i][0][0][0],&_wall[0][0],250*76,&flag[0],0,0,0);
-    athread_get(PE_MODE,&preflag[i+1][1][0],&_flag[0],1000,&flag[0],0,0,0);
+    athread_get(PE_MODE,(void *)&prewall[i][0][0][0],(void *)&_wall[0][0],250*76,(void *)&flag[0],0,0,0);
+    athread_get(PE_MODE,(void *)&preflag[i+1][1][0],(void *)&_flag[0],1000,(void *)&flag[0],0,0,0);
     for(j=0;j<125;j++)
     {
       //flag=0;
       flag[1]=0;
-      athread_get(PE_MODE,&prewall[i][j][250][0],&_wall[250][0],250*76,&flag[1],0,0,0);
-      athread_get(PE_MODE,&preflag[i+1][j+1][250],&_flag[250],1000,&flag[1],0,0,0);
+      athread_get(PE_MODE,(void *)&prewall[i][j][250][0],(void *)&_wall[250][0],250*76,(void *)&flag[1],0,0,0);
+      athread_get(PE_MODE,(void *)&preflag[i+1][j+1][250],(void *)&_flag[250],1000,(void *)&flag[1],0,0,0);
       while(flag[0]!=2);
       while(putflag[0]!=1);
       for(k=0;k<250;k++)
@@ -316,12 +317,12 @@ void preworkSlave(long *para){
         newwall[k][19]=_flag[k];
       }
       putflag[0]=0;
-      athread_put(PE_MODE,&newwall[0][0],&returnwall[i+1][j+1][0][0],250*20,&putflag[0],0,0);
+      athread_put(PE_MODE,(void *)&newwall[0][0],(void *)&returnwall[i+1][j+1][0][0],250*20,(void *)&putflag[0],0,0);
       if(j<124)
       {
         flag[0]=0;
-        athread_get(PE_MODE,&prewall[i][j+1][0][0],&_wall[0][0],250*76,&flag[0],0,0,0);
-        athread_get(PE_MODE,&preflag[i+1][j+2][0],&_flag[0],1000,&flag[0],0,0,0);
+        athread_get(PE_MODE,(void *)&prewall[i][j+1][0][0],(void *)&_wall[0][0],250*76,(void *)&flag[0],0,0,0);
+        athread_get(PE_MODE,(void *)&preflag[i+1][j+2][0],(void *)&_flag[0],1000,(void *)&flag[0],0,0,0);
       }
       while(flag[1]!=2);
       while(putflag[1]!=1);
@@ -332,7 +333,7 @@ void preworkSlave(long *para){
         newwall[k][19]=_flag[k];
       }
       putflag[1]=0;
-      athread_put(PE_MODE,&newwall[250][0],&returnwall[i+1][j+1][250][0],250*20,&putflag[1],0,0);
+      athread_put(PE_MODE,(void *)&newwall[250][0],(void *)&returnwall[i+1][j+1][250][0],250*20,(void *)&putflag[1],0,0);
     }
   }
   memset(_wall,0,sizeof(_wall));
