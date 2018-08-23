@@ -8,35 +8,34 @@
 # include "ArgumentMT.h"
 
 /* Parameters */
-__thread_local_fix Real *****nodes;
-__thread_local_fix char ****walls;
-__thread_local_fix int Xst, Xed, Yst, Yed, nz, current, other;
+__thread_kernel("compute") Real *****nodes;
+__thread_kernel("compute") char ****walls;
+__thread_kernel("compute") int Xst, Xed, Yst, Yed, nz, current, other;
 
 /* Thread */
-__thread_local_fix volatile long wait, target, putFlag, putTarget, waitWalls, targetWalls;
-__thread_local_fix int threadID, threadST, threadED, statusI[3];
-__thread_local_fix Real nodesCurrentLocal[MAXJ - 2][MAXK][MAXL] __attribute__((aligned(128)));
+__thread_kernel("compute") volatile long wait, target, putFlag, putTarget, waitWalls, targetWalls;
+__thread_kernel("compute") int threadID, threadST, threadED, statusI[3];
+__thread_kernel("compute") Real nodesCurrentLocal[MAXJ - 2][MAXK][MAXL] __attribute__((aligned(128)));
 
 /* Main Vars */
-__thread_local_fix Real nodesOtherLocal[MAXI][MAXJ][MAXK + 2][MAXL] __attribute__((aligned(128)));
-__thread_local_fix char wallsLocal[MAXJ - 2][MAXK][MAXL + 1] __attribute__((aligned(128)));
-__thread_local_fix char compA[10][251][2];
+__thread_kernel("compute") Real nodesOtherLocal[MAXI][MAXJ][MAXK + 2][MAXL] __attribute__((aligned(128)));
+__thread_kernel("compute") char wallsLocal[MAXJ - 2][MAXK][MAXL + 1] __attribute__((aligned(128)));
+__thread_kernel("compute") char compA[10][251][2];
 
 /* Collide */
-__thread_local_fix Real _nu, _omega, _CSmago;
-__thread_local_fix Real Qo, S, omegaNew, rho, u_x, u_y, u_z, uxyzConst, nf6, nf10, nf14, *npc0;
-__thread_local_fix Real nfSub[20] __attribute__((aligned(32)));
-__thread_local_fix Real feq[20] __attribute__((aligned(32)));
+__thread_kernel("compute") Real _nu, _omega, _CSmago;
+__thread_kernel("compute") Real Qo, S, omegaNew, rho, u_x, u_y, u_z, uxyzConst, nf6, nf10, nf14, *npc0;
+__thread_kernel("compute") Real nfSub[20] __attribute__((aligned(32)));
+__thread_kernel("compute") Real feq[20] __attribute__((aligned(32)));
 
 /* Vector */
-__thread_local_fix floatv4 tmpV, fiV, rxyzV;
-__thread_local_fix floatv4 uxyzConstV, u_xV, u_yV, u_zV, omegaNewV, rhoConstV;
-__thread_local_fix floatv4 const1V = 1.0, const3V = 3.0, const4p5V = 4.5;
-__thread_local_fix floatv4 eCoefV[20] __attribute__((aligned(32)));
+__thread_kernel("compute") floatv4 tmpV, fiV, rxyzV;
+__thread_kernel("compute") floatv4 uxyzConstV, u_xV, u_yV, u_zV, omegaNewV, rhoConstV;
+__thread_kernel("compute") floatv4 eCoefV[20] __attribute__((aligned(32)));
 
 /* Extern */
 extern Real nu, omega, CSmago;
-__thread_local_fix volatile int* updateflag;
+__thread_kernel("compute") volatile int* updateflag;
 
 inline void setParas(long *para) {
   nodes = (Real *****) para[0]; walls = (char ****) para[1];
@@ -270,4 +269,55 @@ void computeOneStepParallel(long *para) {
 
   }
   while(putTarget != putFlag);
+}
+
+
+__thread_kernel("prework") int _wall[500][19]__attribute__((aligned(128)));
+__thread_kernel("prework") int _flag[500]__attribute__((aligned(128)));
+__thread_kernel("prework") char newwall[500][20]__attribute__((aligned(128)));
+
+__thread_kernel("prework") int ****prewall;
+__thread_kernel("prework") int ***preflag;
+__thread_kernel("prework") char ****returnwall;
+
+
+void preworkSlave(long *para){
+
+  int id = athread_get_id(-1);
+  int st = id*4;
+  int ed = st+4;
+  if(st>250) st=250;
+  if(ed>250) ed=250;
+
+  prewall=para[0];
+  preflag=para[1];
+  returnwall=para[2];
+  int i,j,k,l;
+  volatile unsigned long flag;
+  flag=1;
+  for(i=st;i<ed;i++)   
+  {
+    for(j=0;j<125;j++)
+    {
+      //flag=0;
+      athread_get(PE_MODE,&prewall[i][j][0][0],&_wall[0][0],500*76,&flag,0,0,0);
+      athread_get(PE_MODE,&preflag[i+1][j+1][0],&_flag[0],2000,&flag,0,0,0);
+      while(flag!=3);
+      for(k=0;k<500;k++)
+      {
+        for(l=0;l<19;l++)
+          newwall[k][l]=_wall[k][l];
+        newwall[k][19]=_flag[k];
+      }
+      flag=0;
+      athread_put(PE_MODE,&newwall[0][0],&returnwall[i+1][j+1][0][0],500*20,&flag,0,0);
+    }
+  }
+  memset(_wall,0,sizeof(_wall));
+  memset(_flag,0,sizeof(_flag));
+  memset(newwall,0,sizeof(newwall));
+  preflag=NULL;
+  prewall=NULL;
+  returnwall=NULL;
+  while(flag!=1);
 }

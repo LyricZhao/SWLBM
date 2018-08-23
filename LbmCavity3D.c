@@ -6,6 +6,7 @@
 #include "athread.h"
 
 extern SLAVE_FUN(computeOneStepParallel)();
+extern SLAVE_FUN(preworkSlave)();
 
 inline Real sqr(Real s) {
   return s * s;
@@ -172,17 +173,12 @@ int main(int argc, char *argv[])
 	 * Main Calculation section
 	 * ---------------------------------------------------*/
 	TIME_ST();
-  athread_init();
-  athread_enter64();
-  char ****wallsChar = (char ****) array4DI(x_sec + 2, y_sec + 2, Z, 5);
-  for(i = 1; i < Xed - Xst + 1; ++ i) {
-    for(j = 1; j < Yed - Yst + 1; ++ j) {
-      for(k = 0; k < Z; ++ k) {
-        for(l = 0; l < 19; ++ l) wallsChar[i][j][k][l] = walls[i - 1][j - 1][k][l];
-        wallsChar[i][j][k][19] = flags[i][j][k];
-      }
-    }
-  }
+  	athread_init();
+  	athread_enter64();
+  	char ****wallsChar = (char ****) array4DI(x_sec + 2, y_sec + 2, Z, 5);
+	long para[3]={(long)walls,(long)flags,(long)wallsChar};
+	athread_spawn64(SLAVE_FUN(preworkSlave), &para);
+	athread_join64();
 
 	volatile int updateflag;
 	Real rho, u_x, u_y, u_z,fi,feq[19],nfSub[19],Qo, omegaNew,S;
